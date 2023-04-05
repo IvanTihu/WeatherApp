@@ -17,9 +17,11 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.weatherapp.R
 import com.example.weatherapp.adapters.VpAdapter
+import com.example.weatherapp.adapters.WeatherModel
 import com.example.weatherapp.databinding.FragmentMainBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import org.json.JSONObject
 
 const val API_KEY = "c254aa7655f74892b46132829232803"
 
@@ -51,10 +53,11 @@ class MainFragment : Fragment() {
     private fun init() = with(binding) {
         val adapter = VpAdapter(activity as FragmentActivity, fList)
         vp.adapter = adapter
-        TabLayoutMediator(tabLayout, vp) { tab:TabLayout.Tab, pos: Int ->
+        TabLayoutMediator(tabLayout, vp) { tab: TabLayout.Tab, pos: Int ->
             tab.text = tList[pos]
         }.attach()
     }
+
     private fun permissionListener() {
         pLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -80,13 +83,33 @@ class MainFragment : Fragment() {
             Request.Method.GET,
             url,
             { result ->
-                Log.d("MyLog", "Result: $result")
+                parseWeatherData(result)
             },
             { error ->
                 Log.d("MyLog", "Error: $error")
             }
         )
         queue.add(request)
+    }
+
+    private fun parseWeatherData(result: String) {
+        val mainObject = JSONObject(result)
+        val item = WeatherModel(
+            mainObject.getJSONObject("location").getString("name"),
+            mainObject.getJSONObject("current").getString("last_updated"),
+            mainObject.getJSONObject("current")
+                .getJSONObject("condition").getString("text"),
+            mainObject.getJSONObject("current").getString("temp_c"),
+            "", "",
+            mainObject.getJSONObject("current")
+                .getJSONObject("condition").getString("icon"),
+            ""
+        )
+        Log.d("MyLog", "City: ${item.city}")
+        Log.d("MyLog", "Time: ${item.time}")
+        Log.d("MyLog", "Condition: ${item.condition}")
+        Log.d("MyLog", "Temperature: ${item.currentTemp}")
+        Log.d("MyLog", "Icon: ${item.imageUrl}")
     }
 
     companion object {
