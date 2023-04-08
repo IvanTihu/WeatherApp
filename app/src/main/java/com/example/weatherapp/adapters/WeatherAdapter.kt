@@ -8,19 +8,22 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.R
 import com.example.weatherapp.databinding.ListItemBinding
+import com.squareup.picasso.Picasso
 
 class WeatherAdapter : ListAdapter<WeatherModel, WeatherAdapter.Holder>(Comparator()) {
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
-        val binding = ListItemBinding.bind(view)
+        private val binding = ListItemBinding.bind(view)
         fun bind(item: WeatherModel) = with(binding) {
             tvData.text = item.time
             tvCondition.text = item.condition
-            tvTemp.text = item.currentTemp
+            val curTemp = item.currentTemp + "ºC"
+            tvTemp.text = curTemp
+            Picasso.get().load("https:" + item.imageUrl).into(imImage)
         }
     }
 
-    class Comparator: DiffUtil.ItemCallback<WeatherModel>() {
+    class Comparator : DiffUtil.ItemCallback<WeatherModel>() {
 
         override fun areItemsTheSame(oldItem: WeatherModel, newItem: WeatherModel): Boolean {
             return oldItem == newItem
@@ -35,7 +38,7 @@ class WeatherAdapter : ListAdapter<WeatherModel, WeatherAdapter.Holder>(Comparat
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.list_item, parent,false)
+                .inflate(R.layout.list_item, parent, false)
         )
     }
 

@@ -62,7 +62,6 @@ class MainFragment : Fragment() {
             tab.text = tList[pos]
         }.attach()
     }
-
     private fun updateCurrentCart() = with(binding) {
         mainViewModel.liveDataCurrent.observe(viewLifecycleOwner) {
             tvData.text = it.time
@@ -76,6 +75,7 @@ class MainFragment : Fragment() {
 
         }
     }
+
     private fun permissionListener() {
         pLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -157,9 +157,6 @@ class MainFragment : Fragment() {
             hours = weatherItem.hours
         )
         mainViewModel.liveDataCurrent.value = item
-        Log.d("MyLog", "Max Temp: ${item.maxTemp}")
-        Log.d("MyLog", "Min Temp: ${item.minTemp}")
-        Log.d("MyLog", "Hours: ${item.hours}")
     }
     companion object {
         @JvmStatic
