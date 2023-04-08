@@ -39,7 +39,7 @@
             tools:text="Sunny" />
 
         <ImageView
-            android:id="@+id/im"
+            android:id="@+id/im_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@mipmap/ic_launcher"
@@ -58,7 +58,7 @@
             android:textColor="@color/white"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/im"
+            app:layout_constraintEnd_toStartOf="@id/im_image"
             app:layout_constraintStart_toEndOf="@id/tv_data"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="25ºC" />
