@@ -139,7 +139,7 @@ class MainFragment : Fragment() {
             )
             list.add(item)
         }
-
+        mainViewModel.liveDataList.value = list
         return list
     }
 
