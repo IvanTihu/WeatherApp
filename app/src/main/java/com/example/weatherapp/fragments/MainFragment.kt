@@ -62,16 +62,21 @@ class MainFragment : Fragment() {
             tab.text = tList[pos]
         }.attach()
     }
+
     private fun updateCurrentCart() = with(binding) {
         mainViewModel.liveDataCurrent.observe(viewLifecycleOwner) {
+            val maxMinTemp = "${it.maxTemp}ºC/${it.minTemp}ºC"
             tvData.text = it.time
             tvCity.text = it.city
-            val currentTemp = it.currentTemp+"ºC"
+            val currentTemp =
+                if (it.currentTemp.isNotEmpty())
+                    it.currentTemp + "ºC"
+                else
+                    maxMinTemp
             tvCurrentTemp.text = currentTemp
             tvCondition.text = it.condition
-            val maxMinTemp = "${it.maxTemp}ºC/${it.minTemp}ºC"
-            tvMaxMin.text = maxMinTemp
-            Picasso.get().load("https:"+it.imageUrl).into(imWeather)
+            tvMaxMin.text = if (it.currentTemp.isNotEmpty()) "" else maxMinTemp
+            Picasso.get().load("https:" + it.imageUrl).into(imWeather)
 
         }
     }
@@ -131,8 +136,14 @@ class MainFragment : Fragment() {
                     .getJSONObject("condition")
                     .getString("text"),
                 currentTemp = "",
-                maxTemp = day.getJSONObject("day").getString("maxtemp_c"),
-                minTemp = day.getJSONObject("day").getString("mintemp_c"),
+                maxTemp = day.getJSONObject("day").getString("maxtemp_c")
+                    .toFloat()
+                    .toInt()
+                    .toString(),
+                minTemp = day.getJSONObject("day").getString("mintemp_c")
+                    .toFloat()
+                    .toInt()
+                    .toString(),
                 imageUrl = day.getJSONObject("day")
                     .getJSONObject("condition").getString("icon"),
                 hours = day.getJSONArray("hour").toString()
@@ -158,6 +169,7 @@ class MainFragment : Fragment() {
         )
         mainViewModel.liveDataCurrent.value = item
     }
+
     companion object {
         @JvmStatic
         fun newInstance() = MainFragment()
