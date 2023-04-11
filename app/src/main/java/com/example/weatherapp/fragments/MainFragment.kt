@@ -1,6 +1,7 @@
 package com.example.weatherapp.fragments
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,6 +12,7 @@ import android.widget.TableLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.android.volley.Request
@@ -21,6 +23,11 @@ import com.example.weatherapp.R
 import com.example.weatherapp.adapters.VpAdapter
 import com.example.weatherapp.adapters.WeatherModel
 import com.example.weatherapp.databinding.FragmentMainBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Picasso
@@ -30,6 +37,7 @@ const val API_KEY = "c254aa7655f74892b46132829232803"
 
 class MainFragment : Fragment() {
 
+    private lateinit var fLocationClient: FusedLocationProviderClient
     private lateinit var pLauncher: ActivityResultLauncher<String>
     private lateinit var binding: FragmentMainBinding
     private val mainViewModel: MainViewModel by activityViewModels()
@@ -51,16 +59,41 @@ class MainFragment : Fragment() {
 
         checkPermission()
         init()
-        requestWeatherData("London")
+        //requestWeatherData("London")
         updateCurrentCart()
+        getLocation()
     }
 
     private fun init() = with(binding) {
+        fLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         val adapter = VpAdapter(activity as FragmentActivity, fList)
         vp.adapter = adapter
         TabLayoutMediator(tabLayout, vp) { tab: TabLayout.Tab, pos: Int ->
             tab.text = tList[pos]
         }.attach()
+        ibSync.setOnClickListener {
+            tabLayout.selectTab(tabLayout.getTabAt(0))
+            getLocation()
+        }
+    }
+
+    private fun getLocation() {
+        val ct = CancellationTokenSource()
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        fLocationClient
+            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
+            .addOnCompleteListener{
+                requestWeatherData("${it.result.latitude},${it.result.longitude}")
+            }
     }
 
     private fun updateCurrentCart() = with(binding) {
