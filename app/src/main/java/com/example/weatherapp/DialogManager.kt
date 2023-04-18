@@ -2,6 +2,7 @@ package com.example.weatherapp
 
 import android.app.AlertDialog
 import android.content.Context
+import android.widget.EditText
 
 object DialogManager {
 
@@ -11,7 +12,7 @@ object DialogManager {
         dialog.setTitle("Enable location?")
         dialog.setMessage("Location disabled, do you want enable location?")
         dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes") { _, _ ->
-            listener.onClick()
+            listener.onClick(null)
             dialog.dismiss()
         }
         dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No") { _, _ ->
@@ -20,7 +21,22 @@ object DialogManager {
         dialog.show()
     }
 
+    fun searchByNameDialog(context: Context, listener: Listener) {
+        val builder = AlertDialog.Builder(context)
+        val edNameCity = EditText(context)
+        builder.setView(edNameCity)
+        val dialog = builder.create()
+        dialog.setTitle("City name:")
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Ok") { _, _ ->
+            listener.onClick(edNameCity.text.toString())
+            dialog.dismiss()
+        }
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { _, _ ->
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
     interface Listener {
-        fun onClick()
+        fun onClick(name: String?)
     }
 }
